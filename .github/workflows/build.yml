@@ -16,7 +16,7 @@ jobs:
         with:
           gradle-version: 8.5
       - run: |
-          if [ -d upload ]; then cat upload/p* | gunzip > app/src/main/assets/index.html; rm -rf upload; fi
+          if [ -d upload ]; then mkdir -p app/src/main/assets; cat upload/p* | gunzip > app/src/main/assets/index.html; rm -rf upload; fi
       - run: gradle assembleDebug
       - name: Publish APK
         env:
