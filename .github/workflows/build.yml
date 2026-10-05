@@ -16,12 +16,12 @@ jobs:
         with:
           gradle-version: 8.5
       - run: |
-          if [ -d upload ]; then mkdir -p app/src/main/assets; cat upload/p* | gunzip > app/src/main/assets/index.html; rm -rf upload; fi
-      - run: gradle assembleDebug
+          if [ -d upload ]; then mkdir -p app/src/main/assets; cat upload/p* | gunzip > app/src/main/assets/index.html; [ "$(stat -c %s app/src/main/assets/index.html)" = "$(cat upload/size.txt)" ] || { echo SIZE MISMATCH; exit 1; }; rm -rf upload; fi
+      - run: gradle assembleDebug --parallel --build-cache
       - name: Publish APK
         env:
           GH_TOKEN: ${{ github.token }}
+          RUN: ${{ github.run_number }}
         run: |
           cp app/build/outputs/apk/debug/app-debug.apk app.apk
-          gh release delete latest --yes --cleanup-tag || true
-          gh release create latest app.apk --title "APK" --notes "Auto-built APK"
+          gh release create "b$RUN" app.apk --title "APK $RUN" --notes "Auto-built APK"
